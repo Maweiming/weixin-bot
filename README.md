@@ -10,9 +10,5 @@
 手机端的所有动作都会同步到客户端
 打开窗口,关闭窗口,语音,图片,文本,撤回消息 都可以被监控
 
-![Image text](http://basekit.oss-cn-hangzhou.aliyuncs.com/github/qunliao.bmp)
-
-![Image text](http://basekit.oss-cn-hangzhou.aliyuncs.com/github/tupian.bmp)
-
-![Image text](http://basekit.oss-cn-hangzhou.aliyuncs.com/github/yuyin.bmp)
+![Image text](http://basekit.oss-cn-hangzhou.aliyuncs.com/github/image.png)
 

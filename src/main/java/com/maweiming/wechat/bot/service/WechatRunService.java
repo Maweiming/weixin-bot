@@ -1,5 +1,6 @@
 package com.maweiming.wechat.bot.service;
 
+import com.alibaba.fastjson.JSON;
 import com.maweiming.wechat.bot.model.contact.ContactList;
 import com.maweiming.wechat.bot.model.contact.ContactMemberModel;
 import com.maweiming.wechat.bot.model.core.WechatCore;
@@ -78,6 +79,7 @@ public class WechatRunService implements ApplicationRunner {
         if (null == contactList) {
             return;
         }
+        LOGGER.info("contactLis={}", JSON.toJSONString(contactList));
         //设置联系人信息
         List<ContactMemberModel> friendList = contactList.getFriendList();
         List<ContactMemberModel> groupList = contactList.getGroupList();

@@ -31,7 +31,7 @@ public class VoiceMessage extends BaseMessage implements IMessage {
 
     public String getMessageVoice(String messageId) {
         String voiceUrl = listenMessageDao.getMessageVoice(WechatCore.getScanCode(), WechatCore.getLoginModel(), messageId);
-        String voicePath = String.format("%s\\voice\\%s.mp3",super.wechatCachePath,IdGenerate.getUUId());
+        String voicePath = String.format("%s/voice/%s.mp3",super.sysConfig.wechatCachePath,IdGenerate.getUUId());
         String result = HttpUtils.downloadVideo(voiceUrl,voicePath);
         return result;
     }

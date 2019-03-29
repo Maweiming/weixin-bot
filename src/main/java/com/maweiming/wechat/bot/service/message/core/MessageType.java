@@ -16,6 +16,7 @@ public enum  MessageType {
     EMOJI("表情包"),
     RECALL("撤回一条消息"),
     LINK("分享链接"),
+    MINIAPP("小程序"),
     OPEN("打开"),
     CLOSE("关闭")
     ;

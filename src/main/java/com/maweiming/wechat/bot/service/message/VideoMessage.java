@@ -31,7 +31,7 @@ public class VideoMessage extends BaseMessage implements IMessage {
 
     public String getMessageVideo(String messageId) {
         String videoUrl = listenMessageDao.getMessageVideo(WechatCore.getScanCode(), WechatCore.getLoginModel(), messageId);
-        String imagePath = String.format("%s\\video\\%s.mp4",super.wechatCachePath,IdGenerate.getUUId());
+        String imagePath = String.format("%s/video/%s.mp4",super.sysConfig.wechatCachePath,IdGenerate.getUUId());
         String result = HttpUtils.downloadVideo(videoUrl,imagePath);
         return result;
     }

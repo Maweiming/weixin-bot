@@ -31,7 +31,7 @@ public class ImageMessage extends BaseMessage implements IMessage {
 
     public String getMessageImage(String messageId) {
         String imageUrl = listenMessageDao.getMessageImage(WechatCore.getScanCode(), WechatCore.getLoginModel(), messageId);
-        String imagePath = String.format("%s\\images\\%s.png",super.wechatCachePath,IdGenerate.getUUId());
+        String imagePath = String.format("%s/images/%s.png",super.sysConfig.wechatCachePath,IdGenerate.getUUId());
         String result = HttpUtils.downloadImage(imageUrl,imagePath);
         return result;
     }

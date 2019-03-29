@@ -19,7 +19,7 @@ public class MessageCacheUtils {
     /**
      * 缓存最大消息数量
      */
-    private volatile static Integer maxLength = 100;
+    private volatile static Integer maxLength = 1000;
 
     private volatile static List<String> messageList = new ArrayList<>();
 

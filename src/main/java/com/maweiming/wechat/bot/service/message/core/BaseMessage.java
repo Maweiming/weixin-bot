@@ -1,14 +1,18 @@
 package com.maweiming.wechat.bot.service.message.core;
 
+import com.maweiming.wechat.bot.config.SysConfig;
 import com.maweiming.wechat.bot.model.core.WechatCore;
 import com.maweiming.wechat.bot.model.group.GroupModel;
 import com.maweiming.wechat.bot.model.listen.AddMessage;
 import com.maweiming.wechat.bot.service.WechatService;
+import com.maweiming.wechat.bot.utils.DingMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * maweiming.com
@@ -25,8 +29,11 @@ public class BaseMessage {
     @Autowired
     private WechatService wechatService;
 
-    @Value("${wechat.cache.path}")
-    public String wechatCachePath;
+    @Autowired
+    private DingMessageUtils dingMessageUtils;
+
+    @Autowired
+    public SysConfig sysConfig;
 
     /**
      * 消息接收者
@@ -98,6 +105,14 @@ public class BaseMessage {
      * @type type 消息类型
      */
     public void printMessage(String content,MessageType type){
+        //核对当前消息是否拉黑
+        if(this.checkBlackList()){
+//            LOGGER.info("拦截一条拉黑消息");
+            return;
+        }
+        //核对当前消息是否是特别关心
+        this.checkConcerned(content);
+        //存储聊天缓存数据,防止消息测回
         MessageCacheUtils.put(new MessageCache(message.getMsgId(),content,type));
         switch (type){
             case RECALL:
@@ -138,5 +153,23 @@ public class BaseMessage {
         }
         return userName;
     }
+
+    /**
+     * 核对当前消息是否是特别关心
+     */
+    public void checkConcerned(String content){
+        if(sysConfig.getConcernedList().contains(msgFromUserName) || sysConfig.getConcernedList().contains(fromUserNameId)){
+            dingMessageUtils.sendMessage(String.format("%s 给你发送了一条消息->%s",msgFromUserName,content));
+        }
+    }
+
+    /**
+     * 核对当前消息是否拉黑
+     */
+    public boolean checkBlackList(){
+        return sysConfig.getBlackList().contains(msgFromUserName) || sysConfig.getBlackList().contains(fromUserNameId);
+    }
+
+
 
 }

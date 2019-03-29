@@ -75,6 +75,12 @@ public class ShowMessageFactory implements IShowMessage {
     @Autowired
     private RecallMessage recallMessage;
 
+    /**
+     * 小程序消息
+     */
+    @Autowired
+    private MiniAppMessage miniAppMessage;
+
     @Override
     public IMessage createMessage(AddMessage message) {
         //消息工厂
@@ -114,6 +120,10 @@ public class ShowMessageFactory implements IShowMessage {
                     case 8:
                         //表情包
                         messageFactory = emojiMessage;
+                        break;
+                    case 33:
+                        //小程序
+                        messageFactory = miniAppMessage;
                         break;
                     default:
                         LOGGER.info("appMsgType={},msgType={}未知的消息,message={}",appMsgType,msgType,message);

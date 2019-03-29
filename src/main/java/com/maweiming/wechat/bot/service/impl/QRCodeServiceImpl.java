@@ -51,7 +51,7 @@ public class QRCodeServiceImpl implements QRCodeService {
     public void showQRCode(String uuid){
         try {
             LOGGER.info("正在渲染登陆二维码...");
-            Path path = new File(String.format("%s\\%s.png",wechatCachePath,uuid)).toPath();
+            Path path = new File(String.format("%s/%s.png",wechatCachePath,uuid)).toPath();
             LOGGER.info("正在生成二维码,{}",path.toString());
             QrcodeUtils.createQrcode(String.format(WechatApiPool.QRCODE_FORMAT,uuid),path);
             qrCodeFrame.launchFrame(path.toString());

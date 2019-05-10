@@ -105,13 +105,12 @@ public class BaseMessage {
      * @type type 消息类型
      */
     public void printMessage(String content,MessageType type){
-        //核对当前消息是否拉黑
-        if(this.checkBlackList()){
-//            LOGGER.info("拦截一条拉黑消息");
-            return;
-        }
         //核对当前消息是否是特别关心
         this.checkConcerned(content);
+        //核对当前消息是否拉黑
+        if(this.checkBlackList()){
+            return;
+        }
         //存储聊天缓存数据,防止消息测回
         MessageCacheUtils.put(new MessageCache(message.getMsgId(),content,type));
         switch (type){
@@ -158,8 +157,14 @@ public class BaseMessage {
      * 核对当前消息是否是特别关心
      */
     public void checkConcerned(String content){
-        if(sysConfig.getConcernedList().contains(msgFromUserName) || sysConfig.getConcernedList().contains(fromUserNameId)){
+        List<String> concernedList = sysConfig.getConcernedList();
+        if(group && concernedList.contains(msgToUserName)){
+            dingMessageUtils.sendMessage(String.format("你特别关系的%s,在%s群聊发送了一条消息->%s",msgToUserName,msgFromUserName,content));
+            return;
+        }
+        if(concernedList.contains(msgFromUserName) || concernedList.contains(fromUserNameId)){
             dingMessageUtils.sendMessage(String.format("%s 给你发送了一条消息->%s",msgFromUserName,content));
+            return;
         }
     }
 
@@ -167,7 +172,12 @@ public class BaseMessage {
      * 核对当前消息是否拉黑
      */
     public boolean checkBlackList(){
-        return sysConfig.getBlackList().contains(msgFromUserName) || sysConfig.getBlackList().contains(fromUserNameId);
+        List<String> blackList = sysConfig.getBlackList();
+        if(group && blackList.contains("#GROUP#")){
+            //屏蔽所有群
+            return true;
+        }
+        return blackList.contains(msgFromUserName) || blackList.contains(fromUserNameId);
     }
 
 

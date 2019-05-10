@@ -57,6 +57,7 @@ public class BaseMessage {
 
     /**
      * 是否是群聊
+     *
      * @default false
      */
     public boolean group;
@@ -73,9 +74,10 @@ public class BaseMessage {
 
     /**
      * 初始化数据
+     *
      * @param message
      */
-    public void initData(AddMessage message){
+    public void initData(AddMessage message) {
         this.message = message;
         //我的用户id
         String myUserNameId = WechatCore.getToUser().getUserName();
@@ -101,50 +103,52 @@ public class BaseMessage {
 
     /**
      * 打印消息
+     *
      * @param content 消息内容
      * @type type 消息类型
      */
-    public void printMessage(String content,MessageType type){
+    public void printMessage(String content, MessageType type) {
         //核对当前消息是否是特别关心
         this.checkConcerned(content);
         //核对当前消息是否拉黑
-        if(this.checkBlackList()){
+        if (this.checkBlackList()) {
             return;
         }
         //存储聊天缓存数据,防止消息测回
-        MessageCacheUtils.put(new MessageCache(message.getMsgId(),content,type));
-        switch (type){
+        MessageCacheUtils.put(new MessageCache(message.getMsgId(), content, type));
+        switch (type) {
             case RECALL:
                 //撤回
-                LOGGER.info("{}:({})->({})->{}",(group ? "群聊":"普通消息"),msgFromUserName,msgToUserName, content);
+                LOGGER.info("{}:({})->({})->{}", (group ? "群聊" : "普通消息"), msgFromUserName, msgToUserName, content);
                 break;
             case TEXT:
                 //文本内容
-                LOGGER.info("{}:({})->({})->{}",(group ? "群聊":"普通消息"),msgFromUserName,msgToUserName, content);
+                LOGGER.info("{}:({})->({})->{}", (group ? "群聊" : "普通消息"), msgFromUserName, msgToUserName, content);
                 break;
             case OPEN:
                 //打开窗口
-                LOGGER.info("你打开了->{}{}",msgToUserName,(group ? "的群聊":"的聊天窗口"));
+                LOGGER.info("你打开了->{}{}", msgToUserName, (group ? "的群聊" : "的聊天窗口"));
                 break;
             case CLOSE:
                 //关闭窗口
-                LOGGER.info("你关闭了->{}{}",msgToUserName,(group ? "的群聊":"的聊天窗口"));
+                LOGGER.info("你关闭了->{}{}", msgToUserName, (group ? "的群聊" : "的聊天窗口"));
                 break;
             default:
                 //除了文本内容以外的消息
-                LOGGER.info("{}:({})->({})->{}->{}",(group ? "群聊":"普通消息"),msgFromUserName,msgToUserName,type.getName(), content);
+                LOGGER.info("{}:({})->({})->{}->{}", (group ? "群聊" : "普通消息"), msgFromUserName, msgToUserName, type.getName(), content);
                 break;
         }
     }
 
     /**
      * 获取会员名称
+     *
      * @param userNameId
      * @return
      */
-    private String getUserName(String userNameId){
+    private String getUserName(String userNameId) {
         String userName = WechatCore.getUserName(userNameId);
-        if(null == userName){
+        if (null == userName) {
             //未加入通讯录的群聊才会为空
             GroupModel groupInfo = wechatService.getGroupInfo(WechatCore.getScanCode(), WechatCore.getLoginModel(), userNameId);
             WechatCore.setContactData(groupInfo.getContactList());
@@ -156,30 +160,46 @@ public class BaseMessage {
     /**
      * 核对当前消息是否是特别关心
      */
-    public void checkConcerned(String content){
+    public void checkConcerned(String content) {
+        //获取特别关心名单
         List<String> concernedList = sysConfig.getConcernedList();
-        if(group && concernedList.contains(msgToUserName)){
-            dingMessageUtils.sendMessage(String.format("你特别关系的%s,在%s群聊发送了一条消息->%s",msgToUserName,msgFromUserName,content));
+        //获取特别关心内容
+        List<String> concernedContentList = sysConfig.getConcernedContentList();
+        //判断特别关心的人是否给你发消息
+        if (concernedList.contains(msgFromUserName) || concernedList.contains(fromUserNameId)) {
+            dingMessageUtils.sendMessage(String.format("%s 给你发送了一条消息->%s", msgFromUserName, content));
             return;
         }
-        if(concernedList.contains(msgFromUserName) || concernedList.contains(fromUserNameId)){
-            dingMessageUtils.sendMessage(String.format("%s 给你发送了一条消息->%s",msgFromUserName,content));
-            return;
+        //是否是群聊
+        if (group) {
+            //判断特别关心的人是否在群聊聊天
+            if (concernedList.contains(msgToUserName)) {
+                dingMessageUtils.sendMessage(String.format("你特别关系的%s,在%s群聊发送了一条消息->%s", msgFromUserName, msgToUserName, content));
+                return;
+            }
+            //判断群聊内容是否包含特别关心的内容
+            if (null != content) {
+                for (String concernedContent : concernedContentList) {
+                    if (content.indexOf(concernedContent) >= 0) {
+                        dingMessageUtils.sendMessage(String.format("%s群聊中，%s发送了一条消息包含了你特别关心的内容->%s", msgToUserName, msgFromUserName, content));
+                        return;
+                    }
+                }
+            }
         }
     }
 
     /**
      * 核对当前消息是否拉黑
      */
-    public boolean checkBlackList(){
+    public boolean checkBlackList() {
         List<String> blackList = sysConfig.getBlackList();
-        if(group && blackList.contains("#GROUP#")){
+        if (group && blackList.contains("#GROUP#")) {
             //屏蔽所有群
             return true;
         }
         return blackList.contains(msgFromUserName) || blackList.contains(fromUserNameId);
     }
-
 
 
 }

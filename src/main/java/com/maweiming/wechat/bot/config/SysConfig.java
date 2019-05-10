@@ -1,9 +1,8 @@
 package com.maweiming.wechat.bot.config;
 
-import org.springframework.beans.factory.annotation.Configurable;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 
 import java.util.List;
 
@@ -14,6 +13,7 @@ import java.util.List;
  * @author CoderMa
  * @version SysConfig.java, v 0.1 2018-11-06 00:06
  */
+@Data
 @Configuration
 public class SysConfig {
 
@@ -30,32 +30,15 @@ public class SysConfig {
     private List<String> concernedList;
 
     /**
+     * 特别关心内容
+     */
+    @Value("#{'${concerned.content.list}'.split(',')}")
+    private List<String> concernedContentList;
+
+    /**
      * 黑名单
      */
     @Value("#{'${blacklist}'.split(',')}")
     private List<String> blackList;
 
-    public String getWechatCachePath() {
-        return wechatCachePath;
-    }
-
-    public void setWechatCachePath(String wechatCachePath) {
-        this.wechatCachePath = wechatCachePath;
-    }
-
-    public List<String> getConcernedList() {
-        return concernedList;
-    }
-
-    public void setConcernedList(List<String> concernedList) {
-        this.concernedList = concernedList;
-    }
-
-    public List<String> getBlackList() {
-        return blackList;
-    }
-
-    public void setBlackList(List<String> blackList) {
-        this.blackList = blackList;
-    }
 }

@@ -174,7 +174,7 @@ public class BaseMessage {
         if (group) {
             //判断特别关心的人是否在群聊聊天
             if (concernedList.contains(msgToUserName)) {
-                dingMessageUtils.sendMessage(String.format("你特别关系的%s,在%s群聊发送了一条消息->%s", msgFromUserName, msgToUserName, content));
+                dingMessageUtils.sendMessage(String.format("你特别关心的%s,在%s群聊发送了一条消息->%s", msgToUserName,msgFromUserName , content));
                 return;
             }
             //判断群聊内容是否包含特别关心的内容

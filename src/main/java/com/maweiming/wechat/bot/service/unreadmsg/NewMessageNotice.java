@@ -45,8 +45,10 @@ public class NewMessageNotice implements INotice {
             for (AddMessage newMessage : message.getAddMsgList()) {
                 //创建消息工厂
                 IMessage messageFactory = showMessage.createMessage(newMessage);
-                //显示消息
-                messageFactory.showMessage();
+                if(null!=messageFactory){
+                    //显示消息
+                    messageFactory.showMessage();
+                }
             }
             //更新同步key,表示该消息已读,微信就不会在推送该消息了
             WechatCore.setSyncKey(message.getSyncKey());

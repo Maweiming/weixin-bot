@@ -145,6 +145,9 @@ public class ShowMessageFactory implements IShowMessage {
                 LOGGER.info("msgType={}未知的消息,message={}",msgType,message);
                 break;
         }
+        if(null==messageFactory){
+            return null;
+        }
         //初始化数据
         messageFactory.initData(message);
         return messageFactory;

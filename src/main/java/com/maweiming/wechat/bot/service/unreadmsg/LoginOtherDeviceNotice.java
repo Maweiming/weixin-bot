@@ -20,7 +20,7 @@ public class LoginOtherDeviceNotice implements INotice {
     @Override
     public void process() {
         LOGGER.info("你在其他地方登录了web微信...");
-        System.exit(0);
+//        System.exit(0);
     }
 
 }

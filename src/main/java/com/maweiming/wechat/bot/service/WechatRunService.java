@@ -1,16 +1,17 @@
 package com.maweiming.wechat.bot.service;
 
 import com.alibaba.fastjson.JSON;
+import com.maweiming.wechat.bot.config.SysConfig;
 import com.maweiming.wechat.bot.model.contact.ContactList;
 import com.maweiming.wechat.bot.model.contact.ContactMemberModel;
 import com.maweiming.wechat.bot.model.core.WechatCore;
 import com.maweiming.wechat.bot.model.group.GroupModel;
-import com.maweiming.wechat.bot.model.initialization.SyncKeyModel;
-import com.maweiming.wechat.bot.model.login.LoginModel;
-import com.maweiming.wechat.bot.model.scan.ScanCode;
 import com.maweiming.wechat.bot.model.initialization.InitModel;
 import com.maweiming.wechat.bot.model.initialization.UserModel;
+import com.maweiming.wechat.bot.model.login.LoginModel;
+import com.maweiming.wechat.bot.model.scan.ScanCode;
 import com.maweiming.wechat.bot.utils.IdGenerate;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,7 @@ import java.util.List;
  * @author CoderMa
  * @version WechatRunService.java, v 0.1 2018-10-31 00:46
  */
+@Slf4j
 @Service
 public class WechatRunService implements ApplicationRunner {
 
@@ -41,8 +43,12 @@ public class WechatRunService implements ApplicationRunner {
     @Autowired
     private QRCodeService qrCodeService;
 
+    @Autowired
+    private SysConfig sysConfig;
+
     @Override
     public void run(ApplicationArguments args) {
+        log.info("sysConfig={}", sysConfig);
         String deviceId = IdGenerate.getDeviceId();
         //1、获取uuid
         String uuid = this.wechatService.getUUID();
@@ -68,7 +74,7 @@ public class WechatRunService implements ApplicationRunner {
         if (null == initModel) {
             return;
         }
-        SyncKeyModel syncKey = initModel.getSyncKey();
+
         UserModel toUser = initModel.getToUser();
         //设置当前用户信息
         WechatCore.setToUserData(toUser);
@@ -96,8 +102,8 @@ public class WechatRunService implements ApplicationRunner {
         WechatCore.setContactData(groupInfo.getContactList());
         WechatCore.setScanCode(scanCode);
         WechatCore.setLoginModel(loginModel);
-        WechatCore.setSyncKey(syncKey);
+        WechatCore.setSyncKey(initModel.getSyncKey());
         //11、监听消息
-        listenMessageService.listen(scanCode,loginModel,syncKey);
+        listenMessageService.listen();
     }
 }

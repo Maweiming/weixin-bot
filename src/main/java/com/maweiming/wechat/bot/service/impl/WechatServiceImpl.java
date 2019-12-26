@@ -7,10 +7,10 @@ import com.maweiming.wechat.bot.model.contact.ContactMemberModel;
 import com.maweiming.wechat.bot.model.contact.ContactModel;
 import com.maweiming.wechat.bot.model.group.GroupInfo;
 import com.maweiming.wechat.bot.model.group.GroupModel;
-import com.maweiming.wechat.bot.model.login.LoginModel;
-import com.maweiming.wechat.bot.model.scan.ScanCode;
 import com.maweiming.wechat.bot.model.initialization.InitModel;
 import com.maweiming.wechat.bot.model.initialization.UserModel;
+import com.maweiming.wechat.bot.model.login.LoginModel;
+import com.maweiming.wechat.bot.model.scan.ScanCode;
 import com.maweiming.wechat.bot.model.statusnotify.StatusNotify;
 import com.maweiming.wechat.bot.service.WechatService;
 import com.maweiming.wechat.bot.utils.HttpUtils;
@@ -74,7 +74,7 @@ public class WechatServiceImpl implements WechatService {
             switch (code){
                 case WechatCode.SUCCESS:
                     String redirectUriRegex = "window.redirect_uri=\"(\\S+?)\";";
-                    String redirectUri = ReUtil.get(redirectUriRegex, content, 1)+"&fun=new";
+                    String redirectUri = ReUtil.get(redirectUriRegex, content, 1) + "&fun=new&version=v2&lang=zh_CN";
                     String baseUri = redirectUri.substring(0,redirectUri.lastIndexOf("/"));
                     return new ScanCode(redirectUri,baseUri);
                 case WechatCode.WAITING_VERIFY:

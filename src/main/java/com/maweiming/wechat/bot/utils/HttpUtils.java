@@ -8,14 +8,15 @@ package com.maweiming.wechat.bot.utils;
  * @version HttpUtils.java, v 0.1 2018-10-31 00:28
  */
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.alibaba.fastjson.JSON;
-import com.xiaoleilu.hutool.json.JSONUtil;
-import org.apache.http.*;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.http.Header;
+import org.apache.http.HeaderElement;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
+import org.apache.http.ParseException;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.CookieStore;
 import org.apache.http.client.config.RequestConfig;
@@ -37,6 +38,18 @@ import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class HttpUtils {
@@ -60,13 +73,21 @@ public class HttpUtils {
         context = HttpClientContext.create();
         cookieStore = new BasicCookieStore();
         // 配置超时时间（连接服务端超时1秒，请求数据返回超时2秒）
-        requestConfig = RequestConfig.custom().setConnectTimeout(6000).setSocketTimeout(6000)
-                .setConnectionRequestTimeout(6000).build();
+        requestConfig = RequestConfig.custom().setConnectTimeout(10000).setSocketTimeout(10000)
+                .setConnectionRequestTimeout(10000).build();
         // 设置默认跳转以及存储cookie
         httpClient = HttpClientBuilder.create().setKeepAliveStrategy(new DefaultConnectionKeepAliveStrategy())
                 .setRedirectStrategy(new DefaultRedirectStrategy()).setDefaultRequestConfig(requestConfig)
                 .setDefaultCookieStore(cookieStore).build();
     }
+
+    public static void updateCookie() {
+        System.out.println("----setContext");
+        httpClient = HttpClientBuilder.create().setKeepAliveStrategy(new DefaultConnectionKeepAliveStrategy())
+                .setRedirectStrategy(new DefaultRedirectStrategy()).setDefaultRequestConfig(requestConfig)
+                .setDefaultCookieStore(cookieStore).build();
+    }
+
 
     /**
      * 发送get请求
@@ -116,7 +137,8 @@ public class HttpUtils {
         HttpGet httpget = new HttpGet(url);
         CloseableHttpResponse response = null;
         try {
-            httpget.setHeader("Referer", "https://wx.qq.com/");
+            httpget.setHeader("Referer", "https://wx.qq.com");
+            httpget.setHeader("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36");
             if(video){
                 httpget.setHeader("Range", "bytes=0-");
             }
@@ -127,11 +149,17 @@ public class HttpUtils {
                 return download(response, filePath);
             } else {
                 response = httpClient.execute(httpget, context);
+                if (url.contains("webwxnewloginpage")) {
+                    //登陆后初始化保存cookie，否者文件不能正常访问
+                    setCookieStore(response);
+                    updateCookie();
+                }
                 //普通http请求
                 return copyResponse2Str(response);
             }
         } catch (Exception e) {
             LOGGER.debug("请求失败\t" + url);
+            LOGGER.info(ExceptionUtils.getStackTrace(e));
         } finally {
             try {
                 if (response != null) {
@@ -196,7 +224,7 @@ public class HttpUtils {
         if (imageFile.exists()) {
             return filePath;
         }
-        String fileDirPath = filePath.substring(0, filePath.lastIndexOf("\\"));
+        String fileDirPath = filePath.substring(0, filePath.lastIndexOf("/"));
         File fileDir = new File(fileDirPath);
         if(!fileDir.exists()){
             fileDir.mkdirs();
@@ -353,40 +381,6 @@ public class HttpUtils {
     }
 
     /**
-     * 手动增加cookie
-     *
-     * @param name
-     * @param value
-     * @param domain
-     * @param path
-     */
-    public void addCookie(String name, String value, String domain, String path) {
-        BasicClientCookie cookie = new BasicClientCookie(name, value);
-        cookie.setDomain(domain);
-        cookie.setPath(path);
-        cookieStore.addCookie(cookie);
-    }
-
-    /**
-     * 把结果console出来
-     *
-     * @param httpResponse
-     * @throws ParseException
-     * @throws IOException
-     */
-    public static void printResponse(HttpResponse httpResponse) throws ParseException, IOException {
-        // 获取响应消息实体
-        HttpEntity entity = httpResponse.getEntity();
-        // 响应状态
-        System.out.println("status:" + httpResponse.getStatusLine());
-        System.out.println("headers:");
-        HeaderIterator iterator = httpResponse.headerIterator();
-        while (iterator.hasNext()) {
-            System.out.println("\t" + iterator.next());
-        }
-    }
-
-    /**
      * 把当前cookie从控制台输出出来
      */
     public static void printCookies() {
@@ -395,25 +389,6 @@ public class HttpUtils {
         for (Cookie cookie : cookies) {
             System.out.println("key:" + cookie.getName() + "  value:" + cookie.getValue());
         }
-    }
-
-    /**
-     * 检查cookie的键值是否包含传参
-     *
-     * @param key
-     * @return
-     */
-    public static boolean checkCookie(String key) {
-        cookieStore = context.getCookieStore();
-        List<Cookie> cookies = cookieStore.getCookies();
-        boolean res = false;
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equals(key)) {
-                res = true;
-                break;
-            }
-        }
-        return res;
     }
 
     /**
@@ -434,4 +409,26 @@ public class HttpUtils {
 
         }
     }
+
+    public static void setCookieStore(HttpResponse httpResponse) {
+        cookieStore = new BasicCookieStore();
+        String cookieStr = "mm_lang=zh_CN; MM_WX_NOTIFY_STATE=1; MM_WX_SOUND_STATE=1";
+        Header[] headers = httpResponse.getHeaders("Set-Cookie");
+        for (Header header : headers) {
+            HeaderElement[] elements = header.getElements();
+            for (HeaderElement element : elements) {
+                if (element.getValue() == null) {
+                    continue;
+                }
+                cookieStr += "; " + element.getName() + "=" + element.getValue();
+            }
+        }
+        cookieStr += "; login_frequency=1";
+        System.out.println("Cookie=" + cookieStr);
+        BasicClientCookie cookie = new BasicClientCookie("Cookie", cookieStr);
+        cookie.setDomain("wx.qq.com");
+        cookie.setPath("/");
+        cookieStore.addCookie(cookie);
+    }
+
 }

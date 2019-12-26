@@ -1,17 +1,12 @@
 package com.maweiming.wechat.bot.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.maweiming.wechat.bot.dao.ListenMessageDao;
 import com.maweiming.wechat.bot.model.core.BaseRequest;
+import com.maweiming.wechat.bot.model.core.WechatCore;
 import com.maweiming.wechat.bot.model.initialization.SyncKeyModel;
-import com.maweiming.wechat.bot.model.listen.AddMessage;
 import com.maweiming.wechat.bot.model.listen.UnreadMessageModel;
-import com.maweiming.wechat.bot.model.listen.MessageModel;
 import com.maweiming.wechat.bot.model.login.LoginModel;
-import com.maweiming.wechat.bot.model.scan.ScanCode;
 import com.maweiming.wechat.bot.service.ListenMessageService;
-import com.maweiming.wechat.bot.service.message.core.IMessage;
-import com.maweiming.wechat.bot.service.message.core.IShowMessage;
 import com.maweiming.wechat.bot.service.unreadmsg.core.INotice;
 import com.maweiming.wechat.bot.service.unreadmsg.core.INoticeMsg;
 import com.xiaoleilu.hutool.util.ReUtil;
@@ -47,7 +42,9 @@ public class ListenMessageServiceImpl implements ListenMessageService {
     private INoticeMsg iNoticeMsg;
 
     @Override
-    public void listen(ScanCode scanCode, LoginModel loginModel, SyncKeyModel syncKey) {
+    public void listen() {
+        SyncKeyModel syncKey = WechatCore.getSyncKey();
+        LoginModel loginModel = WechatCore.getLoginModel();
         LOGGER.info("进入消息监听模式...");
         BaseRequest baseRequest = loginModel.toBaseRequest();
         //获取一个健康的微信节点
@@ -55,6 +52,7 @@ public class ListenMessageServiceImpl implements ListenMessageService {
         LOGGER.info("get host={}", healthyNode.getHost());
         while (true) {
             try {
+                Thread.sleep(1000);
                 //check是否有最新消息
                 UnreadMessageModel unreadMessage = pollingCheckUnreadMessage(healthyNode.getHost(), baseRequest, syncKey);
                 if (null == unreadMessage) {

@@ -2,9 +2,9 @@ package com.maweiming.wechat.bot.dao.impl;
 
 import com.maweiming.wechat.bot.dao.WechatDao;
 import com.maweiming.wechat.bot.model.group.GroupInfo;
+import com.maweiming.wechat.bot.model.initialization.UserModel;
 import com.maweiming.wechat.bot.model.login.LoginModel;
 import com.maweiming.wechat.bot.model.scan.ScanCode;
-import com.maweiming.wechat.bot.model.initialization.UserModel;
 import com.maweiming.wechat.bot.utils.HttpUtils;
 import com.maweiming.wechat.bot.utils.TimeUtils;
 import com.maweiming.wechat.bot.utils.WechatApiPool;
@@ -37,6 +37,7 @@ public class WechatDaoImpl implements WechatDao {
     public String getUUID() {
         Map<String,Object> params = new HashMap<>();
         params.put("appid",WechatApiPool.APPID);
+        params.put("redirect_uri", "https://wx.qq.com/cgi-bin/mmwebwx-bin/webwxnewloginpage");
         params.put("fun",WechatApiPool.FUN);
         params.put("lang",WechatApiPool.LANG);
         params.put("_",TimeUtils.getTime());

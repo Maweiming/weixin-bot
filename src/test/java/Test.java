@@ -1,18 +1,4 @@
-import com.alibaba.fastjson.JSON;
-import com.maweiming.wechat.bot.service.impl.ListenMessageServiceImpl;
-import com.maweiming.wechat.bot.utils.FileUtils;
-import com.maweiming.wechat.bot.utils.HttpUtils;
-import com.maweiming.wechat.bot.utils.IdGenerate;
-import com.maweiming.wechat.bot.utils.TimeUtils;
 import com.xiaoleilu.hutool.util.ReUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class Test {
 

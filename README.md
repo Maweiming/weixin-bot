@@ -1,7 +1,5 @@
 使用微信网页Api实现微信客户端功能(Java开发)
 
-部分用户无法登陆这个是微信方的限制，先自查一下微信web版能不能正常登陆 https://wx.qq.com/ 如果能正常登陆说明是可以使用的。
-
 ![Image text](http://basekit.oss-cn-hangzhou.aliyuncs.com/github/emoji.qpic2.png)
 
 可用于监控女朋友是否出轨
@@ -12,3 +10,5 @@
 
 ![Image text](http://basekit.oss-cn-hangzhou.aliyuncs.com/github/image.png)
 
+
+//部分用户无法登陆这个是微信方的限制，先自查一下微信web版能不能正常登陆 https://wx.qq.com/ 如果能正常登陆说明是可以使用的。
